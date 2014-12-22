@@ -145,7 +145,7 @@ extern "C" {
  * @name Random Number Generator configuration
  * @{
  */
-#define RANDOM_NUMOF       (0U)
+#define RANDOM_NUMOF       (1U)
 /** @} */
 
 /**
