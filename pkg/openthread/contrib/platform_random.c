@@ -8,9 +8,12 @@
 
 /**
  * @{
- *
+ * @ingroup     net
  * @file
- * @author  Jose Ignacio Alamos <jialamos@uc.cl>
+ * @brief       Implementation of OpenThread random platform abstraction
+ *
+ * @author      Jose Ignacio Alamos <jialamos@uc.cl>
+ * @}
  */
 
 #include <stdint.h>
@@ -46,5 +49,3 @@ uint32_t otPlatRandomGet(void)
     DEBUG("otPlatRandomGet: %i\n", (int) rand_val);
     return rand_val;
 }
-
-/** @} */

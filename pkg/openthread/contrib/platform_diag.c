@@ -8,9 +8,12 @@
 
 /**
  * @{
- *
+ * @ingroup     net
  * @file
- * @author  Jose Ignacio Alamos <jialamos@uc.cl>
+ * @brief       Implementation of OpenThread diagnostics platform abstraction
+ *
+ * @author      Jose Ignacio Alamos <jialamos@uc.cl>
+ * @}
  */
 
 #include <stdbool.h>
@@ -33,5 +36,3 @@ bool otPlatDiagModeGet(void)
 {
     return sDiagMode;
 }
-
-/** @} */

@@ -8,9 +8,12 @@
 
 /**
  * @{
- *
+ * @ingroup     net
  * @file
- * @author  Baptiste Clenet <bapclenet@gmail.com>
+ * @brief       Implementation of OpenThread misc platform abstraction
+ *
+ * @author      Baptiste Clenet <bapclenet@gmail.com>
+ * @}
  */
 
 

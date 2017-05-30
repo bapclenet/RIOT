@@ -8,9 +8,12 @@
 
 /**
  * @{
- *
+ * @ingroup     net
  * @file
- * @author  Jose Ignacio Alamos <jialamos@uc.cl>
+ * @brief       Implementation of OpenThread alarm platform abstraction
+ *
+ * @author      Jose Ignacio Alamos <jialamos@uc.cl>
+ * @}
  */
 
 #include <stdint.h>
@@ -40,12 +43,11 @@ void otPlatAlarmStartAt(otInstance *aInstance, uint32_t aT0, uint32_t aDt)
     DEBUG("openthread: otPlatAlarmStartAt: aT0: %" PRIu32 ", aDT: %" PRIu32 "\n", aT0, aDt);
     ot_alarm_msg.type = OPENTHREAD_XTIMER_MSG_TYPE_EVENT;
 
-    int dt;
     if (aDt == 0) {
         msg_send(&ot_alarm_msg, thread_getpid());
     }
     else {
-        dt = aDt * US_PER_MS;
+        int dt = aDt * US_PER_MS;
         xtimer_set_msg(&ot_timer, dt, &ot_alarm_msg, thread_getpid());
     }
 }
@@ -64,4 +66,3 @@ uint32_t otPlatAlarmGetNow(void)
     DEBUG("openthread: otPlatAlarmGetNow: %" PRIu32 "\n", now);
     return now;
 }
-/** @} */

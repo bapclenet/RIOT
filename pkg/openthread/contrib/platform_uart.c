@@ -8,16 +8,19 @@
 
 /**
  * @{
- *
+ * @ingroup     net
  * @file
- * @author  Jose Ignacio Alamos <jialamos@uc.cl>
+ * @brief       Implementation of OpenThread UART platform abstraction
+ *
+ * @author      Jose Ignacio Alamos <jialamos@uc.cl>
+ * @}
  */
 
 #include <stdint.h>
 #include <stdio.h>
-#include <periph/uart.h>
 
-#include <openthread/platform/uart.h>
+#include "periph/uart.h"
+#include "openthread/platform/uart.h"
 
 /* OpenThread will call this for enabling UART (required for OpenThread's CLI)*/
 ThreadError otPlatUartEnable(void)
@@ -41,5 +44,3 @@ ThreadError otPlatUartSend(const uint8_t *aBuf, uint16_t aBufLength)
 
     return kThreadError_None;
 }
-
-/** @} */

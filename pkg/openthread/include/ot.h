@@ -40,8 +40,6 @@ extern "C" {
 #define OPENTHREAD_MSG_TYPE_RECV         (0x2238)        /**< event for frame reception */
 #define OPENTHREAD_JOB_MSG_TYPE_EVENT    (0x2240)        /**< event indicating an OT_JOB message */
 
-typedef void OT_JOB;
-
 /**
  * @brief   Struct containing a serial message
  */
@@ -54,8 +52,9 @@ typedef struct {
  * @brief   Struct containing an OpenThread job
  */
 typedef struct {
-    void (*function)(otInstance*, void*);   /**< function to be called when executing job */
-    void *context;                          /**< context for the job **/
+    const char *mName;                      /**< A pointer to the job name string. */
+    void *mArg;                              /**< arg for the job **/
+    void *mAnswer;                           /**< answer from the job **/
 } ot_job_t;
 
 /**
@@ -115,24 +114,36 @@ kernel_pid_t openthread_get_pid(void);
  */
 void ot_random_init(void);
 
-#if defined(MODULE_OPENTHREAD_CLI) || defined(MODULE_OPENTHREAD_NCP)
 /*
  * @brief   Run OpenThread UART simulator (stdio)
  */
 void openthread_uart_run(void);
 
-#endif
+/**
+ * @brief   Execute OpenThread job. Call this function only in OpenThread thread
+ *
+ * @param[in]   ot_instance     OpenThread instance
+ * @param[in]   job             callback pointer to an OpenThread job function
+ * @param[in]   arg             arg for the job
+ * @param[out]  answer          answer for the job
+ *
+ * @return  0 on success, 1 on error
+ */
+uint8_t ot_exec_job(otInstance *ot_instance, const char* name, void *arg, void* answer);
 
 /**
- * @brief   Execute OpenThread job in same thread as OT core (due to concurrency).
+ * @brief   Call OpenThread job in same thread as OT core (due to concurrency).
  *
  * @note    An OpenThread job allows direct calls to OpenThread API (otXXX functions) without worrying about concurrency
  * issues. All API calls should be made in OT_JOB type functions.
  *
- * @param[in]   job      callback pointer to an OpenThread job function
- * @param[in]   context     context for the job
+ * @param[in]   name            name of the job to call
+ * @param[in]   arg             arg for the job
+ * @param[out]  answer          answer for the job
+ *
+ * @return  0 on success, 1 on error
  */
-void ot_exec_job(OT_JOB (*job)(otInstance*, void*), void *context);
+uint8_t ot_call_job(char* name, void *arg, void* answer);
 
 #ifdef __cplusplus
 }

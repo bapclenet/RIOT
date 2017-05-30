@@ -8,9 +8,12 @@
 
 /**
  * @{
- *
+ * @ingroup     net
  * @file
- * @author  Jose Ignacio Alamos <jialamos@uc.cl>
+ * @brief       Implementation of OpenThread main functions
+ *
+ * @author      Jose Ignacio Alamos <jialamos@uc.cl>
+ * @}
  */
 
 #include <assert.h>
@@ -38,13 +41,12 @@
 static at86rf2xx_t at86rf2xx_dev;
 #endif
 
-#define OPENTHREAD_NETDEV2_BUFLEN (ETHERNET_MAX_LEN)
+#define OPENTHREAD_NETDEV_BUFLEN (ETHERNET_MAX_LEN)
 
-static uint8_t rx_buf[OPENTHREAD_NETDEV2_BUFLEN];
-static uint8_t tx_buf[OPENTHREAD_NETDEV2_BUFLEN];
+static uint8_t rx_buf[OPENTHREAD_NETDEV_BUFLEN];
+static uint8_t tx_buf[OPENTHREAD_NETDEV_BUFLEN];
 static char ot_thread_stack[2 * THREAD_STACKSIZE_MAIN];
 
-#if defined(MODULE_OPENTHREAD_CLI) || defined(MODULE_OPENTHREAD_NCP)
 /* init and run OpeanThread's UART simulation (stdio) */
 void openthread_uart_run(void)
 {
@@ -62,7 +64,6 @@ void openthread_uart_run(void)
         msg_send(&msg, openthread_get_pid());
     }
 }
-#endif
 
 void openthread_bootstrap(void)
 {
@@ -78,5 +79,3 @@ void openthread_bootstrap(void)
     openthread_radio_init(netdev, tx_buf, rx_buf);
     openthread_netdev_init(ot_thread_stack, sizeof(ot_thread_stack), THREAD_PRIORITY_MAIN - 5, "openthread", netdev);
 }
-
-/** @} */

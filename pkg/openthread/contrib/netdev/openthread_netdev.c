@@ -8,9 +8,12 @@
 
 /**
  * @{
- *
+ * @ingroup     net
  * @file
- * @author  Jose Ignacio Alamos <jialamos@uc.cl>
+ * @brief       Netdev adoption for OpenThread
+ *
+ * @author      Jose Ignacio Alamos <jialamos@uc.cl>
+ * @}
  */
 
 #include <assert.h>
@@ -27,10 +30,6 @@
 #include "random.h"
 #include "ot.h"
 
-#ifdef MODULE_OPENTHREAD_NCP
-#include "openthread/ncp.h"
-#endif
-
 #define ENABLE_DEBUG (0)
 #include "debug.h"
 
@@ -40,27 +39,38 @@ static msg_t _queue[OPENTHREAD_QUEUE_LEN];
 static kernel_pid_t _pid;
 static otInstance *sInstance;
 
-void ot_exec_job(OT_JOB (*job)(otInstance *, void *), void *context)
-{
+/**
+ * @name    Default configuration for OpenThread network
+ * @{
+ */
+#ifndef OPENTHREAD_PANID
+#define OPENTHREAD_PANID            0x1234
+#endif
+#ifndef OPENTHREAD_CHANNEL
+#define OPENTHREAD_CHANNEL          (26U)
+#endif
+/** @} */
+
+uint8_t ot_call_job(char* name, void *arg, void* answer) {
     ot_job_t _job;
 
-    _job.function = job;
-    _job.context = context;
+    _job.mName = name;
+    _job.mArg = arg;
+    _job.mAnswer = answer;
 
     msg_t msg, reply;
     msg.type = OPENTHREAD_JOB_MSG_TYPE_EVENT;
     msg.content.ptr = &_job;
     msg_send_receive(&msg, &reply, openthread_get_pid());
+    return (uint8_t)reply.content.value;
 }
 
 /* OpenThread will call this when switching state from empty tasklet to non-empty tasklet. */
-void otTaskletsSignalPending(otInstance *aInstance)
-{
+void otTaskletsSignalPending(otInstance *aInstance) {
     otTaskletsProcess(aInstance);
 }
 
-static void *_openthread_event_loop(void *arg)
-{
+static void *_openthread_event_loop(void *arg) {
     _pid = thread_getpid();
 
     /* enable OpenThread UART */
@@ -73,22 +83,23 @@ static void *_openthread_event_loop(void *arg)
     netdev_t *dev;
     msg_t msg, reply;
 
-#ifdef MODULE_OPENTHREAD_CLI
     otCliUartInit(sInstance);
-#else
-
-#ifdef MODULE_OPENTHREAD_NCP
-    otNcpInit(sInstance);
-#endif
-
-#endif
 
 #if OPENTHREAD_ENABLE_DIAG
     diagInit(sInstance);
 #endif
 
+    /* Init default parameters */
+    otPanId panid = OPENTHREAD_PANID;
+    uint8_t channel = OPENTHREAD_CHANNEL;
+    otLinkSetPanId(sInstance, panid);
+    otLinkSetChannel(sInstance, channel);
+    /* Bring up the IPv6 interface  */
+    otIp6SetEnabled(sInstance, true);
+    /* Start Thread protocol operation */
+    otThreadSetEnabled(sInstance, true);
+
     uint8_t *buf;
-    (void) buf;
     ot_job_t *job;
     while (1) {
         msg_receive(&msg);
@@ -102,16 +113,14 @@ static void *_openthread_event_loop(void *arg)
                 dev = msg.content.ptr;
                 dev->driver->isr(dev);
                 break;
-#if defined(MODULE_OPENTHREAD_CLI) || defined(MODULE_OPENTHREAD_NCP)
             case OPENTHREAD_SERIAL_MSG_TYPE_EVENT:
-                /* Tell OpenThread about the receotion of a CLI command */
+                /* Tell OpenThread about the reception of a CLI command */
                 buf = msg.content.ptr;
                 otPlatUartReceived(buf, strlen((char *) buf));
                 break;
-#endif
             case OPENTHREAD_JOB_MSG_TYPE_EVENT:
                 job = msg.content.ptr;
-                job->function(sInstance, job->context);
+                reply.content.value = ot_exec_job(sInstance, job->mName, job->mArg, job->mAnswer);
                 msg_reply(&msg, &reply);
                 break;
         }
@@ -120,21 +129,21 @@ static void *_openthread_event_loop(void *arg)
     return NULL;
 }
 
-static void _event_cb(netdev_t *dev, netdev_event_t event)
-{
-    msg_t msg;
-
+static void _event_cb(netdev_t *dev, netdev_event_t event) {
     switch (event) {
         case NETDEV_EVENT_ISR:
-            assert(_pid != KERNEL_PID_UNDEF);
+            {
+                msg_t msg;
+                assert(_pid != KERNEL_PID_UNDEF);
 
-            msg.type = OPENTHREAD_NETDEV_MSG_TYPE_EVENT;
-            msg.content.ptr = dev;
+                msg.type = OPENTHREAD_NETDEV_MSG_TYPE_EVENT;
+                msg.content.ptr = dev;
 
-            if (msg_send(&msg, _pid) <= 0) {
-                DEBUG("openthread_netdev: possibly lost interrupt.\n");
+                if (msg_send(&msg, _pid) <= 0) {
+                    DEBUG("openthread_netdev: possibly lost interrupt.\n");
+                }
+                break;
             }
-            break;
 
         case NETDEV_EVENT_RX_COMPLETE:
             DEBUG("openthread_netdev: Reception of a packet\n");
@@ -152,15 +161,13 @@ static void _event_cb(netdev_t *dev, netdev_event_t event)
 }
 
 /* get OpenThread thread pid */
-kernel_pid_t openthread_get_pid(void)
-{
+kernel_pid_t openthread_get_pid(void) {
     return _pid;
 }
 
 /* starts OpenThread thread */
 int openthread_netdev_init(char *stack, int stacksize, char priority,
-                           const char *name, netdev_t *netdev)
-{
+                           const char *name, netdev_t *netdev) {
     netdev->driver->init(netdev);
     netdev->event_callback = _event_cb;
 
@@ -177,4 +184,3 @@ int openthread_netdev_init(char *stack, int stacksize, char priority,
 
     return _pid;
 }
-/** @} */
