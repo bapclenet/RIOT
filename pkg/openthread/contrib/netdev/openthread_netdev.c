@@ -62,7 +62,7 @@ uint8_t ot_call_job(char* name, void *arg, void* answer) {
     msg.type = OPENTHREAD_JOB_MSG_TYPE_EVENT;
     msg.content.ptr = &_job;
     msg_send_receive(&msg, &reply, openthread_get_pid());
-    return (uint8_t)msg.content.value;
+    return (uint8_t)reply.content.value;
 }
 
 /* OpenThread will call this when switching state from empty tasklet to non-empty tasklet. */

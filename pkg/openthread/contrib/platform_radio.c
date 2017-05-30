@@ -40,6 +40,8 @@ static int8_t Rssi;
 
 static netdev_t *_dev;
 
+static bool sDisabled;
+
 /* set 15.4 channel */
 static int _set_channel(uint16_t channel)
 {
@@ -223,8 +225,9 @@ ThreadError otPlatRadioEnable(otInstance *aInstance)
     (void) aInstance;
     if (sDisabled) {
         sDisabled = false;
-		    _set_idle();
+        _set_idle();
     }
+    return kThreadError_None;
 }
 
 /* OpenThread will call this for disabling the radio */
@@ -234,7 +237,7 @@ ThreadError otPlatRadioDisable(otInstance *aInstance)
     (void) aInstance;
     if (!sDisabled) {
         sDisabled = true;
-		    _set_sleep();
+        _set_sleep();
     }
     return kThreadError_None;
 }
