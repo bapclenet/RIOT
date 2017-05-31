@@ -12,9 +12,6 @@ RIOTBASE ?= $(CURDIR)/../..
 
 CFLAGS += -DDEVELHELP -Wall
 
-#Uncomment the following line for running OpenThread NCP
-CFLAGS += -DMODULE_OPENTHREAD_NCP
-
 # Change this to 0 show compiler invocation lines by default:
 QUIET ?= 1
 

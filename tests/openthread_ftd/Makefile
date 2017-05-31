@@ -12,9 +12,6 @@ RIOTBASE ?= $(CURDIR)/../..
 
 CFLAGS += -DDEVELHELP -Wall
 
-#Uncomment the following line for running OpenThread CLI
-CFLAGS += -DMODULE_OPENTHREAD_CLI
-
 # Change this to 0 show compiler invocation lines by default:
 QUIET ?= 1
 

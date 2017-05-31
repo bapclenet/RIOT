@@ -30,6 +30,10 @@
 #include "random.h"
 #include "ot.h"
 
+#ifdef MODULE_LIBOPENTHREAD_NCP_FTD
+#include "openthread/ncp.h"
+#endif
+
 #define ENABLE_DEBUG (0)
 #include "debug.h"
 
@@ -83,7 +87,13 @@ static void *_openthread_event_loop(void *arg) {
     netdev_t *dev;
     msg_t msg, reply;
 
+#if defined(MODULE_LIBOPENTHREAD_CLI_FTD) || defined(MODULE_LIBOPENTHREAD_CLI_MTD)
     otCliUartInit(sInstance);
+#endif
+
+#ifdef MODULE_LIBOPENTHREAD_NCP_FTD
+    otNcpInit(sInstance);
+#endif
 
 #if OPENTHREAD_ENABLE_DIAG
     diagInit(sInstance);
