@@ -17,7 +17,7 @@
  *
  * @file
  *
- * @author  José Ignacio Alamos <jialamos@uc.cl>
+ * @author  Josï¿½ Ignacio Alamos <jialamos@uc.cl>
  */
 
 #ifndef OT_H
@@ -52,9 +52,9 @@ typedef struct {
  * @brief   Struct containing an OpenThread job
  */
 typedef struct {
-    const char *mName;                      /**< A pointer to the job name string. */
-    void *mArg;                              /**< arg for the job **/
-    void *mAnswer;                           /**< answer from the job **/
+    const char *command;                    /**< A pointer to the job name string. */
+    void *arg;                              /**< arg for the job **/
+    void *answer;                           /**< answer from the job **/
 } ot_job_t;
 
 /**
@@ -120,34 +120,34 @@ void ot_random_init(void);
 void openthread_uart_run(void);
 
 /**
- * @brief   Execute OpenThread job. Call this function only in OpenThread thread
+ * @brief   Execute OpenThread command. Call this function only in OpenThread thread
  *
  * @param[in]   ot_instance     OpenThread instance
- * @param[in]   job             callback pointer to an OpenThread job function
- * @param[in]   arg             arg for the job
- * @param[out]  answer          answer for the job
+ * @param[in]   command         OpenThread command name
+ * @param[in]   arg             arg for the command
+ * @param[out]  answer          answer for the command
  *
  * @return  0 on success, 1 on error
  */
-uint8_t ot_exec_job(otInstance *ot_instance, const char* name, void *arg, void* answer);
+uint8_t ot_exec_command(otInstance *ot_instance, const char* command, void *arg, void* answer);
 
 /**
- * @brief   Call OpenThread job in same thread as OT core (due to concurrency).
+ * @brief   Call OpenThread command in same thread as OT core (due to concurrency).
  *
- * @note    An OpenThread job allows direct calls to OpenThread API (otXXX functions) without worrying about concurrency
+ * @note    An OpenThread command allows direct calls to OpenThread API (otXXX functions) without worrying about concurrency
  * issues. All API calls should be made in OT_JOB type functions.
  *
- * @param[in]   name            name of the job to call
- * @param[in]   arg             arg for the job
- * @param[out]  answer          answer for the job
+ * @param[in]   command         name of the command to call
+ * @param[in]   arg             arg for the command
+ * @param[out]  answer          answer for the command
  *
  * @return  0 on success, 1 on error
  */
-uint8_t ot_call_job(char* name, void *arg, void* answer);
+uint8_t ot_call_command(char* command, void *arg, void* answer);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+#endif /* OT_H */
 /** @} */

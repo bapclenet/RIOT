@@ -223,10 +223,12 @@ ThreadError otPlatRadioEnable(otInstance *aInstance)
 {
     DEBUG("openthread: otPlatRadioEnable\n");
     (void) aInstance;
+
     if (sDisabled) {
         sDisabled = false;
         _set_idle();
     }
+
     return kThreadError_None;
 }
 
@@ -235,10 +237,12 @@ ThreadError otPlatRadioDisable(otInstance *aInstance)
 {
     DEBUG("openthread: otPlatRadioDisable\n");
     (void) aInstance;
+
     if (!sDisabled) {
         sDisabled = true;
         _set_sleep();
     }
+
     return kThreadError_None;
 }
 

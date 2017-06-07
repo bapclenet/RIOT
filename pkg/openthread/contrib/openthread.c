@@ -51,7 +51,6 @@ static char ot_thread_stack[2 * THREAD_STACKSIZE_MAIN];
 void openthread_uart_run(void)
 {
     char buf[256];
-    char c;
     msg_t msg;
 
     msg.type = OPENTHREAD_SERIAL_MSG_TYPE_EVENT;
@@ -59,7 +58,7 @@ void openthread_uart_run(void)
 
     buf[1] = 0;
     while (1) {
-        c = getchar();
+        char c = getchar();
         buf[0] = c;
         msg_send(&msg, openthread_get_pid());
     }

@@ -55,16 +55,16 @@ static otInstance *sInstance;
 #endif
 /** @} */
 
-uint8_t ot_call_job(char* name, void *arg, void* answer) {
-    ot_job_t _job;
+uint8_t ot_call_command(char* command, void *arg, void* answer) {
+    ot_job_t job;
 
-    _job.mName = name;
-    _job.mArg = arg;
-    _job.mAnswer = answer;
+    job.command = command;
+    job.arg = arg;
+    job.answer = answer;
 
     msg_t msg, reply;
     msg.type = OPENTHREAD_JOB_MSG_TYPE_EVENT;
-    msg.content.ptr = &_job;
+    msg.content.ptr = &job;
     msg_send_receive(&msg, &reply, openthread_get_pid());
     return (uint8_t)reply.content.value;
 }
@@ -131,11 +131,10 @@ static void *_openthread_event_loop(void *arg) {
                 break;
             case OPENTHREAD_JOB_MSG_TYPE_EVENT:
                 job = msg.content.ptr;
-                reply.content.value = ot_exec_job(sInstance, job->mName, job->mArg, job->mAnswer);
+                reply.content.value = ot_exec_command(sInstance, job->command, job->arg, job->answer);
                 msg_reply(&msg, &reply);
                 break;
         }
-        otTaskletsProcess(sInstance);
     }
 
     return NULL;
