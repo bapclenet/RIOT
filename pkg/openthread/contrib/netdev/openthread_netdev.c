@@ -71,7 +71,7 @@ uint8_t ot_call_job(char* name, void *arg, void* answer) {
 
 /* OpenThread will call this when switching state from empty tasklet to non-empty tasklet. */
 void otTaskletsSignalPending(otInstance *aInstance) {
-    otTaskletsProcess(aInstance);
+    (void) aInstance;
 }
 
 static void *_openthread_event_loop(void *arg) {
@@ -112,6 +112,7 @@ static void *_openthread_event_loop(void *arg) {
     uint8_t *buf;
     ot_job_t *job;
     while (1) {
+        msg.type = 0x00;
         msg_receive(&msg);
         switch (msg.type) {
             case OPENTHREAD_XTIMER_MSG_TYPE_EVENT:
@@ -134,6 +135,7 @@ static void *_openthread_event_loop(void *arg) {
                 msg_reply(&msg, &reply);
                 break;
         }
+        otTaskletsProcess(sInstance);
     }
 
     return NULL;
