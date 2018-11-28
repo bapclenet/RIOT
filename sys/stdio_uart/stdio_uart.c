@@ -66,12 +66,16 @@ ssize_t stdio_read(void* buffer, size_t count)
     return (ssize_t)isrpipe_read(&stdio_uart_isrpipe, (char *)buffer, count);
 }
 
-ssize_t stdio_write(const void* buffer, size_t len)
+#include "mutex.h"
+static mutex_t _mutex = MUTEX_INIT;
+ssize_t stdio_write(const void *buffer, size_t len)
 {
+    mutex_lock(&_mutex);
 #ifndef USE_ETHOS_FOR_STDIO
     uart_write(STDIO_UART_DEV, (const uint8_t *)buffer, len);
 #else
     ethos_send_frame(&ethos, (const uint8_t *)buffer, len, ETHOS_FRAME_TYPE_TEXT);
 #endif
+    mutex_unlock(&_mutex);
     return len;
 }
