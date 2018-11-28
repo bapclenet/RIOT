@@ -29,10 +29,13 @@
 static msg_t _main_msg_queue[MAIN_QUEUE_SIZE];
 
 static char _stack[THREAD_STACKSIZE_MAIN];
+// static mutex_t _mutex = MUTEX_INIT;
 
 void print_str_simple(char *aStr)
 {
+    // mutex_lock(&_mutex);
     puts(aStr);
+    // mutex_unlock(&_mutex);
 }
 
 static void *_second_thread(void *arg)
